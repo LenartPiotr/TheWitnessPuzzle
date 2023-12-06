@@ -10,17 +10,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import lenart.piotr.thewitnesspuzzle.R;
-import lenart.piotr.thewitnesspuzzle.puzzledata.IViewPuzzle;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
 import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
 
 public class PuzzleInteractiveFragment extends Fragment {
 
-    private IViewPuzzle puzzle;
+    private IPuzzle puzzle;
     private PuzzleCanvas puzzleCanvas;
 
     public PuzzleInteractiveFragment() { }
 
-    public static PuzzleInteractiveFragment newInstance(IViewPuzzle puzzle) {
+    public static PuzzleInteractiveFragment newInstance(IPuzzle puzzle) {
         PuzzleInteractiveFragment fragment = new PuzzleInteractiveFragment();
         Bundle args = new Bundle();
         args.putParcelable("puzzle", (Parcelable) puzzle);
@@ -40,7 +41,7 @@ public class PuzzleInteractiveFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_puzzle_interactive, container, false);
         puzzleCanvas = view.findViewById(R.id.puzzleCanvas);
-        puzzleCanvas.setViewPuzzle(puzzle);
+        puzzleCanvas.setViewPuzzle(puzzle.createViewPuzzle());
         return view;
     }
 }

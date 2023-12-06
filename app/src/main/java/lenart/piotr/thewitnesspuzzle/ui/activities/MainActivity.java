@@ -2,20 +2,19 @@ package lenart.piotr.thewitnesspuzzle.ui.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import android.os.Bundle;
-import android.view.animation.AnimationSet;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.fragment.app.FragmentContainerView;
 import lenart.piotr.thewitnesspuzzle.R;
-import lenart.piotr.thewitnesspuzzle.puzzledata.SquarePuzzle;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzle;
 import lenart.piotr.thewitnesspuzzle.ui.fragments.PuzzleInteractiveFragment;
+import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -46,7 +45,18 @@ public class MainActivity extends AppCompatActivity {
             showMenu = !showMenu;
         });
 
-        changeFragment(PuzzleInteractiveFragment.newInstance(SquarePuzzle.createEmpty(5, 5)));
+        SquarePuzzle puzzle = SquarePuzzle.createEmpty(5, 5);
+        puzzle.getStartPoints().add(new Vector2i(0, 0));
+        puzzle.getEndPoints().add(new Vector2i(2, 0));
+        puzzle.getEndPoints().add(new Vector2i(2, 5));
+        puzzle.getEndPoints().add(new Vector2i(0, 2));
+        puzzle.getEndPoints().add(new Vector2i(5, 2));
+        puzzle.getEndPoints().add(new Vector2i(0, 0));
+        puzzle.getEndPoints().add(new Vector2i(5, 0));
+        puzzle.getEndPoints().add(new Vector2i(0, 5));
+        puzzle.getEndPoints().add(new Vector2i(5, 5));
+        puzzle.getEndPoints().add(new Vector2i(2, 2));
+        changeFragment(PuzzleInteractiveFragment.newInstance(puzzle));
     }
 
     private void changeFragment(Fragment fragment) {

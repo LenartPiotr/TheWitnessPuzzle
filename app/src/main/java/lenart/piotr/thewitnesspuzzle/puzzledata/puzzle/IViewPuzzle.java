@@ -1,4 +1,4 @@
-package lenart.piotr.thewitnesspuzzle.puzzledata;
+package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle;
 
 import android.graphics.Canvas;
 

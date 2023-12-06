@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import lenart.piotr.thewitnesspuzzle.puzzledata.IViewPuzzle;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
 
 public class PuzzleCanvas extends View {
 

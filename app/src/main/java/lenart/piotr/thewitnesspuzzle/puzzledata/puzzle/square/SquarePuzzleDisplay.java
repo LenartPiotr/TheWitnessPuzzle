@@ -36,6 +36,9 @@ public class SquarePuzzleDisplay implements IViewPuzzle {
         Paint paintLinesBg = new Paint();
         paintLinesBg.setColor(Color.rgb(61, 45, 199));
 
+        Paint paintMainLine = new Paint();
+        paintMainLine.setColor(Color.rgb(182, 218, 247));
+
         int canvasWidth = canvas.getWidth();
         int canvasHeight = canvas.getHeight();
 
@@ -48,6 +51,8 @@ public class SquarePuzzleDisplay implements IViewPuzzle {
 
         paintLinesBg.setStrokeWidth(pixelsPerPart);
         paintLinesBg.setStrokeCap(Paint.Cap.ROUND);
+        paintMainLine.setStrokeWidth(pixelsPerPart);
+        paintMainLine.setStrokeCap(Paint.Cap.ROUND);
 
         int marginTop = 0;
         int marginLeft = 0;
@@ -152,6 +157,48 @@ public class SquarePuzzleDisplay implements IViewPuzzle {
                 );
             }
             canvas.drawLine(from.x, from.y, to.x, to.y, paintLinesBg);
+        }
+
+        if (this.path != null) {
+            drawPath(canvas, pixelsPerPart, marginTop, marginLeft, pixelsPerDot, paintMainLine);
+        }
+    }
+
+    private void drawPath(Canvas canvas, int pixelsPerPart, int marginTop, int marginLeft, int pixelsPerDot, Paint paint) {
+        canvas.drawRoundRect(
+                new RectF(
+                        (int)((this.path.start.x * 3 + 1.5) * pixelsPerPart + marginLeft - (0.5 * pixelsPerPart + pixelsPerDot) * this.path.lastStepPercent),
+                        (int)((this.path.start.y * 3 + 1.5) * pixelsPerPart + marginTop - (0.5 * pixelsPerPart + pixelsPerDot) * this.path.lastStepPercent),
+                        (int)((this.path.start.x * 3 + 1.5) * pixelsPerPart + marginLeft + (0.5 * pixelsPerPart + pixelsPerDot) * this.path.lastStepPercent),
+                        (int)((this.path.start.y * 3 + 1.5) * pixelsPerPart + marginTop + (0.5 * pixelsPerPart + pixelsPerDot) * this.path.lastStepPercent)
+                ), pixelsPerPart / 2 + pixelsPerDot, pixelsPerPart / 2 + pixelsPerDot, paint);
+        int endIndex = this.path.steps.size() - 1;
+        int prevEndIndex = endIndex - 1;
+        for (int i = 1; i <= prevEndIndex; i++) {
+            Vector2i p1 = this.path.steps.get(i - 1);
+            Vector2i p2 = this.path.steps.get(i);
+            Vector2i from = new Vector2i(
+                    (p1.x * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                    (p1.y * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2
+            );
+            Vector2i to = new Vector2i(
+                    (p2.x * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                    (p2.y * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2
+            );
+            canvas.drawLine(from.x, from.y, to.x, to.y, paint);
+        }
+        if (prevEndIndex >= 0) {
+            Vector2i p1 = this.path.steps.get(prevEndIndex);
+            Vector2i p2 = this.path.steps.get(endIndex);
+            Vector2i from = new Vector2i(
+                    (p1.x * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                    (p1.y * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2
+            );
+            Vector2i to = new Vector2i(
+                    (int)(((p1.x + (p2.x - p1.x) * this.path.lastStepPercent) * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2),
+                    (int)(((p1.y + (p2.y - p1.y) * this.path.lastStepPercent) * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2)
+            );
+            canvas.drawLine(from.x, from.y, to.x, to.y, paint);
         }
     }
 }

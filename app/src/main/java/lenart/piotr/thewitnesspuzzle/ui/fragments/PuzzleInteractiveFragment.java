@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import lenart.piotr.thewitnesspuzzle.R;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
@@ -49,7 +50,19 @@ public class PuzzleInteractiveFragment extends Fragment {
         IViewPuzzle viewPuzzle = puzzle.createViewPuzzle(puzzleCanvas);
 
         // TODO: TO REMOVE
-        ((SquarePuzzleDisplay)viewPuzzle).setPath(new Path(new Vector2i(0, 5)));
+        List<Vector2i> steps = new ArrayList<>();
+        steps.add(new Vector2i(0, 5));
+        steps.add(new Vector2i(1, 5));
+        steps.add(new Vector2i(2, 5));
+        steps.add(new Vector2i(2, 4));
+        steps.add(new Vector2i(3, 4));
+        steps.add(new Vector2i(3, 3));
+        steps.add(new Vector2i(3, 2));
+        steps.add(new Vector2i(4, 2));
+        steps.add(new Vector2i(4, 1));
+        steps.add(new Vector2i(4, 0));
+        steps.add(new Vector2i(5, 0));
+        ((SquarePuzzleDisplay)viewPuzzle).setPath(new Path(new Vector2i(0, 5), steps));
 
         puzzleCanvas.setViewPuzzle(viewPuzzle);
         return view;

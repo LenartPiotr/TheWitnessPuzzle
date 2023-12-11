@@ -8,7 +8,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
 
-public class PuzzleCanvas extends View {
+public class PuzzleCanvas extends View implements RedrawRequest {
 
    IViewPuzzle viewPuzzle;
 
@@ -24,5 +24,10 @@ public class PuzzleCanvas extends View {
    protected void onDraw(@NonNull Canvas canvas) {
       super.onDraw(canvas);
       if (viewPuzzle != null) viewPuzzle.draw(canvas);
+   }
+
+   @Override
+   public void redraw() {
+      invalidate();
    }
 }

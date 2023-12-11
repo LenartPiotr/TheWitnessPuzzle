@@ -9,10 +9,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+
 import lenart.piotr.thewitnesspuzzle.R;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.Path;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzleDisplay;
 import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
+import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
 public class PuzzleInteractiveFragment extends Fragment {
 
@@ -41,7 +46,12 @@ public class PuzzleInteractiveFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_puzzle_interactive, container, false);
         puzzleCanvas = view.findViewById(R.id.puzzleCanvas);
-        puzzleCanvas.setViewPuzzle(puzzle.createViewPuzzle());
+        IViewPuzzle viewPuzzle = puzzle.createViewPuzzle(puzzleCanvas);
+
+        // TODO: TO REMOVE
+        ((SquarePuzzleDisplay)viewPuzzle).setPath(new Path(new Vector2i(0, 5)));
+
+        puzzleCanvas.setViewPuzzle(viewPuzzle);
         return view;
     }
 }

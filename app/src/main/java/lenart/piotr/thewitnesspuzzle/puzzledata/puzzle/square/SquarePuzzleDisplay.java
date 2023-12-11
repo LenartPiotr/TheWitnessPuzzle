@@ -6,14 +6,23 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
+import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
 public class SquarePuzzleDisplay implements IViewPuzzle {
 
-    SquarePuzzle puzzle;
+    protected SquarePuzzle puzzle;
+    protected Path path;
+    protected PuzzleCanvas puzzleCanvas;
 
-    protected SquarePuzzleDisplay(SquarePuzzle puzzle) {
+    protected SquarePuzzleDisplay(SquarePuzzle puzzle, PuzzleCanvas puzzleCanvas) {
         this.puzzle = puzzle;
+        this.puzzleCanvas = puzzleCanvas;
+    }
+
+    public void setPath(Path path) {
+        this.path = path;
+        puzzleCanvas.redraw();
     }
 
     @Override

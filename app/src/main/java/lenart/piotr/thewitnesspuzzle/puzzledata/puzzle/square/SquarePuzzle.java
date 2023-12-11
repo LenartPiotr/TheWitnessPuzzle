@@ -15,6 +15,7 @@ import lenart.piotr.thewitnesspuzzle.puzzledata.components.ComponentsIdManager;
 import lenart.piotr.thewitnesspuzzle.puzzledata.components.IComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
+import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
 public class SquarePuzzle implements IPuzzle, Parcelable {
@@ -44,8 +45,8 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
     // IPuzzle implementation
 
     @Override
-    public IViewPuzzle createViewPuzzle() {
-        return new SquarePuzzleDisplay(this);
+    public IViewPuzzle createViewPuzzle(PuzzleCanvas canvas) {
+        return new SquarePuzzleDisplay(this, canvas);
     }
 
     // Parcelable

@@ -3,6 +3,7 @@ package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
 public class Path {
@@ -39,5 +40,14 @@ public class Path {
       lastStepPercent = path.lastStepPercent;
       startPercent = path.startPercent;
       end = path.end;
+   }
+
+   @NonNull
+   @Override
+   public String toString() {
+      return "Path{" +
+              "steps=" + steps +
+              ", lastStepPercent=" + lastStepPercent +
+              '}';
    }
 }

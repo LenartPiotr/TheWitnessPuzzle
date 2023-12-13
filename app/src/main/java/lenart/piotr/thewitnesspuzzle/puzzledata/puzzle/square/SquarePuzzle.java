@@ -1,5 +1,6 @@
 package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -45,8 +46,8 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
     // IPuzzle implementation
 
     @Override
-    public IViewPuzzle createViewPuzzle(PuzzleCanvas canvas) {
-        return new SquarePuzzleDisplay(this, canvas);
+    public IViewPuzzle createViewPuzzle(Context context, PuzzleCanvas canvas) {
+        return new SquarePuzzleDisplay(context, this, canvas);
     }
 
     // Parcelable

@@ -1,12 +1,17 @@
 package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.view.MotionEvent;
+import android.view.View;
 
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
 import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
+import lenart.piotr.thewitnesspuzzle.utils.callbacks.ICallback1;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
 public class SquarePuzzleDisplay implements IViewPuzzle {
@@ -14,15 +19,69 @@ public class SquarePuzzleDisplay implements IViewPuzzle {
     protected SquarePuzzle puzzle;
     protected Path path;
     protected PuzzleCanvas puzzleCanvas;
+    protected Context context;
 
-    protected SquarePuzzleDisplay(SquarePuzzle puzzle, PuzzleCanvas puzzleCanvas) {
+    private SquarePuzzlePathEditor pathEditor;
+
+    protected SquarePuzzleDisplay(Context context, SquarePuzzle puzzle, PuzzleCanvas puzzleCanvas) {
         this.puzzle = puzzle;
         this.puzzleCanvas = puzzleCanvas;
+        this.context = context;
     }
 
     public void setPath(Path path) {
         this.path = path;
         puzzleCanvas.redraw();
+    }
+
+    public void clearPath() {
+        this.path = null;
+        puzzleCanvas.redraw();
+    }
+
+    public void destroy() {
+        if (pathEditor != null) pathEditor.destroy();
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    public void enableDrawing(ICallback1<Path> drawPathCallback) {
+        pathEditor = new SquarePuzzlePathEditor(context, puzzle, puzzleCanvas, this, (newPath, end) -> {
+            this.setPath(newPath);
+            if (end) drawPathCallback.run(newPath);
+        });
+    }
+
+    protected int getPixelsPerPart() {
+        int width = puzzleCanvas.getWidth();
+        int height = puzzleCanvas.getHeight();
+        int requiredPartsHorizontal = puzzle.width * 3 + 3;
+        int requiredPartsVertical = puzzle.height * 3 + 3;
+
+        int pixelsPerPartHorizontal = width / requiredPartsHorizontal;
+        int pixelsPerPartVertical = height / requiredPartsVertical;
+        return Math.min(pixelsPerPartVertical, pixelsPerPartHorizontal);
+    }
+
+    protected Vector2i getMargin() {
+        int width = puzzleCanvas.getWidth();
+        int height = puzzleCanvas.getHeight();
+        int requiredPartsHorizontal = puzzle.width * 3 + 3;
+        int requiredPartsVertical = puzzle.height * 3 + 3;
+
+        int pixelsPerPartHorizontal = width / requiredPartsHorizontal;
+        int pixelsPerPartVertical = height / requiredPartsVertical;
+
+        int pixelsPerPart = Math.min(pixelsPerPartVertical, pixelsPerPartHorizontal);
+
+        int marginTop = 0;
+        int marginLeft = 0;
+        if (pixelsPerPartVertical < pixelsPerPartHorizontal) {
+            marginLeft = (width - (pixelsPerPart * requiredPartsHorizontal)) / 2;
+        } else {
+            marginTop = (height - (pixelsPerPart * requiredPartsVertical)) / 2;
+        }
+
+        return new Vector2i(marginLeft, marginTop);
     }
 
     @Override
@@ -39,28 +98,16 @@ public class SquarePuzzleDisplay implements IViewPuzzle {
         Paint paintMainLine = new Paint();
         paintMainLine.setColor(Color.rgb(182, 218, 247));
 
-        int canvasWidth = canvas.getWidth();
-        int canvasHeight = canvas.getHeight();
-
-        int requiredPartsHorizontal = puzzle.width * 3 + 3;
-        int requiredPartsVertical = puzzle.height * 3 + 3;
-
-        int pixelsPerPartHorizontal = canvasWidth / requiredPartsHorizontal;
-        int pixelsPerPartVertical = canvasHeight / requiredPartsVertical;
-        int pixelsPerPart = Math.min(pixelsPerPartVertical, pixelsPerPartHorizontal);
+        int pixelsPerPart = getPixelsPerPart();
 
         paintLinesBg.setStrokeWidth(pixelsPerPart);
         paintLinesBg.setStrokeCap(Paint.Cap.ROUND);
         paintMainLine.setStrokeWidth(pixelsPerPart);
         paintMainLine.setStrokeCap(Paint.Cap.ROUND);
 
-        int marginTop = 0;
-        int marginLeft = 0;
-        if (pixelsPerPartVertical < pixelsPerPartHorizontal) {
-            marginLeft = (canvasWidth - (pixelsPerPart * requiredPartsHorizontal)) / 2;
-        } else {
-            marginTop = (canvasHeight - (pixelsPerPart * requiredPartsVertical)) / 2;
-        }
+        Vector2i margins = getMargin();
+        int marginTop = margins.y;
+        int marginLeft = margins.x;
 
         for (int x = 0; x <= puzzle.width; x++) {
             canvas.drawRoundRect(
@@ -100,77 +147,82 @@ public class SquarePuzzleDisplay implements IViewPuzzle {
                     (point.x * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
                     (point.y * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2
             );
-            Vector2i to = new Vector2i(
-                    (point.x * 3) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
-                    (point.y * 3) * pixelsPerPart + marginTop + pixelsPerPart / 2
-            );
-            boolean left = point.x == 0;
-            boolean right = point.x == puzzle.width;
-            boolean top = point.y == 0;
-            boolean bottom = point.y == puzzle.height;
-            if (top) {
-                to = new Vector2i(
-                        (point.x * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
-                        marginTop + pixelsPerPart / 2
-                );
-            }
-            if (bottom) {
-                to = new Vector2i(
-                        (point.x * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
-                        (point.y * 3 + 2) * pixelsPerPart + marginTop + pixelsPerPart / 2
-                );
-            }
-            if (left) {
-                to = new Vector2i(
-                        marginLeft + pixelsPerPart / 2,
-                        (point.y * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2
-                );
-            }
-            if (right) {
-                to = new Vector2i(
-                        (point.x * 3 + 2) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
-                        (point.y * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2
-                );
-            }
-            if (top && left) {
-                to = new Vector2i(
-                        (point.x * 3) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
-                        (point.y * 3) * pixelsPerPart + marginTop + pixelsPerPart / 2
-                );
-            }
-            if (top && right) {
-                to = new Vector2i(
-                        (point.x * 3 + 2) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
-                        (point.y * 3) * pixelsPerPart + marginTop + pixelsPerPart / 2
-                );
-            }
-            if (bottom && left) {
-                to = new Vector2i(
-                        (point.x * 3) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
-                        (point.y * 3 + 2) * pixelsPerPart + marginTop + pixelsPerPart / 2
-                );
-            }
-            if (bottom && right) {
-                to = new Vector2i(
-                        (point.x * 3 + 2) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
-                        (point.y * 3 + 2) * pixelsPerPart + marginTop + pixelsPerPart / 2
-                );
-            }
+            Vector2i to = getEndingPoint(point, pixelsPerPart, marginTop, marginLeft);
             canvas.drawLine(from.x, from.y, to.x, to.y, paintLinesBg);
         }
 
-        if (this.path != null) {
+        if (this.path != null && this.path.steps.size() != 0) {
             drawPath(canvas, pixelsPerPart, marginTop, marginLeft, pixelsPerDot, paintMainLine);
         }
+    }
+
+    private Vector2i getEndingPoint(Vector2i point, int pixelsPerPart, int marginTop, int marginLeft) {
+        Vector2i to = new Vector2i(
+                (point.x * 3) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                (point.y * 3) * pixelsPerPart + marginTop + pixelsPerPart / 2
+        );
+        boolean left = point.x == 0;
+        boolean right = point.x == puzzle.width;
+        boolean top = point.y == 0;
+        boolean bottom = point.y == puzzle.height;
+        if (top) {
+            to = new Vector2i(
+                    (point.x * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                    marginTop + pixelsPerPart / 2
+            );
+        }
+        if (bottom) {
+            to = new Vector2i(
+                    (point.x * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                    (point.y * 3 + 2) * pixelsPerPart + marginTop + pixelsPerPart / 2
+            );
+        }
+        if (left) {
+            to = new Vector2i(
+                    marginLeft + pixelsPerPart / 2,
+                    (point.y * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2
+            );
+        }
+        if (right) {
+            to = new Vector2i(
+                    (point.x * 3 + 2) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                    (point.y * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2
+            );
+        }
+        if (top && left) {
+            to = new Vector2i(
+                    marginLeft + pixelsPerPart / 2,
+                    marginTop + pixelsPerPart / 2
+            );
+        }
+        if (top && right) {
+            to = new Vector2i(
+                    (point.x * 3 + 2) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                    marginTop + pixelsPerPart / 2
+            );
+        }
+        if (bottom && left) {
+            to = new Vector2i(
+                    marginLeft + pixelsPerPart / 2,
+                    (point.y * 3 + 2) * pixelsPerPart + marginTop + pixelsPerPart / 2
+            );
+        }
+        if (bottom && right) {
+            to = new Vector2i(
+                    (point.x * 3 + 2) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                    (point.y * 3 + 2) * pixelsPerPart + marginTop + pixelsPerPart / 2
+            );
+        }
+        return to;
     }
 
     private void drawPath(Canvas canvas, int pixelsPerPart, int marginTop, int marginLeft, int pixelsPerDot, Paint paint) {
         canvas.drawRoundRect(
                 new RectF(
-                        (int)((this.path.start.x * 3 + 1.5) * pixelsPerPart + marginLeft - (0.5 * pixelsPerPart + pixelsPerDot) * this.path.lastStepPercent),
-                        (int)((this.path.start.y * 3 + 1.5) * pixelsPerPart + marginTop - (0.5 * pixelsPerPart + pixelsPerDot) * this.path.lastStepPercent),
-                        (int)((this.path.start.x * 3 + 1.5) * pixelsPerPart + marginLeft + (0.5 * pixelsPerPart + pixelsPerDot) * this.path.lastStepPercent),
-                        (int)((this.path.start.y * 3 + 1.5) * pixelsPerPart + marginTop + (0.5 * pixelsPerPart + pixelsPerDot) * this.path.lastStepPercent)
+                        (int)((this.path.start.x * 3 + 1.5) * pixelsPerPart + marginLeft - (0.5 * pixelsPerPart + pixelsPerDot) * this.path.startPercent),
+                        (int)((this.path.start.y * 3 + 1.5) * pixelsPerPart + marginTop - (0.5 * pixelsPerPart + pixelsPerDot) * this.path.startPercent),
+                        (int)((this.path.start.x * 3 + 1.5) * pixelsPerPart + marginLeft + (0.5 * pixelsPerPart + pixelsPerDot) * this.path.startPercent),
+                        (int)((this.path.start.y * 3 + 1.5) * pixelsPerPart + marginTop + (0.5 * pixelsPerPart + pixelsPerDot) * this.path.startPercent)
                 ), pixelsPerPart / 2 + pixelsPerDot, pixelsPerPart / 2 + pixelsPerDot, paint);
         int endIndex = this.path.steps.size() - 1;
         int prevEndIndex = endIndex - 1;
@@ -199,6 +251,15 @@ public class SquarePuzzleDisplay implements IViewPuzzle {
                     (int)(((p1.y + (p2.y - p1.y) * this.path.lastStepPercent) * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2)
             );
             canvas.drawLine(from.x, from.y, to.x, to.y, paint);
+        }
+        if (path.end) {
+            Vector2i last = path.steps.get(endIndex);
+            Vector2i from = new Vector2i(
+                    (last.x * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                    (last.y * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2
+            );
+            Vector2i endPoint = getEndingPoint(last, pixelsPerPart, marginTop, marginLeft);
+            canvas.drawLine(from.x, from.y, endPoint.x, endPoint.y, paint);
         }
     }
 }

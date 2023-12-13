@@ -45,9 +45,11 @@ public class MainActivity extends AppCompatActivity {
             showMenu = !showMenu;
         });
 
-        SquarePuzzle puzzle = SquarePuzzle.createEmpty(5, 5);
-        puzzle.getStartPoints().add(new Vector2i(0, 5));
+        SquarePuzzle puzzle = SquarePuzzle.createEmpty(5, 7);
+        puzzle.getStartPoints().add(new Vector2i(0, 7));
+        puzzle.getStartPoints().add(new Vector2i(2, 2));
         puzzle.getEndPoints().add(new Vector2i(5, 0));
+        puzzle.getEndPoints().add(new Vector2i(4, 6));
         changeFragment(PuzzleInteractiveFragment.newInstance(puzzle));
     }
 

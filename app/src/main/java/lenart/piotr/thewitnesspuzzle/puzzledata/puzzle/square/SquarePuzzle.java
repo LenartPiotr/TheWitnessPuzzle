@@ -43,6 +43,8 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
     public List<Vector2i> getStartPoints() { return startPoints; }
     public List<Vector2i> getEndPoints() { return endPoints; }
 
+    public int getHeight() { return height; }
+    public int getWidth() { return width; }
     // IPuzzle implementation
 
     @Override

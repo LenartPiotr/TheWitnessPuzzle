@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPath;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
-public class Path {
+public class Path implements IPath {
    public Vector2i start;
    public List<Vector2i> steps;
    public double lastStepPercent;

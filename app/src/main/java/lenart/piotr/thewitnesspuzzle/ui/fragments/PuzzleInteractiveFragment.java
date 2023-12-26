@@ -1,5 +1,6 @@
 package lenart.piotr.thewitnesspuzzle.ui.fragments;
 
+import android.annotation.SuppressLint;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
@@ -13,12 +14,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import lenart.piotr.thewitnesspuzzle.R;
+import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
+import lenart.piotr.thewitnesspuzzle.puzzledata.generators.Solution;
+import lenart.piotr.thewitnesspuzzle.puzzledata.generators.square.BouncingPathGenerator;
+import lenart.piotr.thewitnesspuzzle.puzzledata.generators.square.NaiveGenerator;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.Path;
@@ -69,6 +75,7 @@ public class PuzzleInteractiveFragment extends Fragment {
         }
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_puzzle_interactive, container, false);
@@ -84,6 +91,21 @@ public class PuzzleInteractiveFragment extends Fragment {
                 soundPool.play(soundGiveUp, 1, 1, 0, 0, 1);
                 viewPuzzle.clearPath();
             }
+        });
+
+        view.findViewById(R.id.btTest).setOnClickListener(v -> {
+            NaiveGenerator generator = new NaiveGenerator.Builder().setSize(10, 10).build();
+            Solution solution = null;
+            try {
+                solution = generator.generate();
+            } catch (WrongComponentException e) {
+                throw new RuntimeException(e);
+            }
+            puzzle = solution.getPuzzle();
+            viewPuzzle = puzzle.createViewPuzzle(getContext(), puzzleCanvas);
+            puzzleCanvas.setViewPuzzle(viewPuzzle);
+            ((SquarePuzzleDisplay)viewPuzzle).setPath((Path) solution.getPath());
+            puzzleCanvas.redraw();
         });
 
         puzzleCanvas.setViewPuzzle(viewPuzzle);

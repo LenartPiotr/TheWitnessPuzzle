@@ -6,17 +6,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.fragments.PuzzleInteractiveFragment">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:layout_height="match_parent">
         <lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas
             android:id="@+id/puzzleCanvas"
             android:layout_marginHorizontal="20dp"
             android:layout_marginVertical="20dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-    </LinearLayout>
+        <!-- TODO REMOVE -->
+        <Button
+            android:id="@+id/btTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Click"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20sp"
+            android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
 
 </FrameLayout>

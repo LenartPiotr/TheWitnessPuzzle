@@ -4,15 +4,13 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import java.util.List;
 import java.util.Random;
 
-import lenart.piotr.thewitnesspuzzle.R;
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.IPathGenerator;
-import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPath;
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.IPath;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
-import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.Path;
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzle;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 

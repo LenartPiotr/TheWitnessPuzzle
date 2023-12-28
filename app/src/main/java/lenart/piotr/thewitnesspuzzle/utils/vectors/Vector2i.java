@@ -12,8 +12,10 @@ public class Vector2i {
    public Vector2i add(Vector2i v) { return new Vector2i(x + v.x, y + v.y); }
    public Vector2i sub(Vector2i v) { return new Vector2i(x - v.x, y - v.y); }
    public Vector2i multi(int v) { return new Vector2i(x * v, y * v); }
+   public Vector2i multi(double v) { return new Vector2i((int)(x * v), (int)(y * v)); }
    public double dist(Vector2i v) { return Math.sqrt(Math.pow(v.x - x, 2) + Math.pow(v.y - y, 2)); }
    public int dist2(Vector2i v) { return (v.x - x) * (v.x - x) + (v.y - y) * (v.y - y); }
+   public Vector2i clone() { return new Vector2i(x, y); }
 
    @Override
    public boolean equals(Object o) {

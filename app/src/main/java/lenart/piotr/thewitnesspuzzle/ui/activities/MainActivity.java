@@ -7,12 +7,20 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.fragment.app.FragmentContainerView;
 import lenart.piotr.thewitnesspuzzle.R;
+import lenart.piotr.thewitnesspuzzle.puzzledata.components.square.MissingEdgesComponent;
+import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
+import lenart.piotr.thewitnesspuzzle.puzzledata.generators.Solution;
+import lenart.piotr.thewitnesspuzzle.puzzledata.generators.square.NaiveGenerator;
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzle;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzleDisplay;
 import lenart.piotr.thewitnesspuzzle.ui.fragments.PuzzleInteractiveFragment;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
@@ -45,12 +53,44 @@ public class MainActivity extends AppCompatActivity {
             showMenu = !showMenu;
         });
 
-        SquarePuzzle puzzle = SquarePuzzle.createEmpty(5, 7);
-        puzzle.getStartPoints().add(new Vector2i(0, 7));
-        puzzle.getStartPoints().add(new Vector2i(2, 2));
-        puzzle.getEndPoints().add(new Vector2i(5, 0));
-        puzzle.getEndPoints().add(new Vector2i(4, 6));
-        changeFragment(PuzzleInteractiveFragment.newInstance(puzzle));
+        nextPuzzle();
+    }
+
+    Vector2i getWindowMazeMetrics() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        int width = displayMetrics.widthPixels;
+
+        int maxV = Math.max(width, height);
+        int minV = Math.min(width, height);
+
+        int maxSize = 8;
+        int minSize = maxSize * minV / maxV;
+
+        int wSize = maxSize;
+        int hSize = minSize;
+        if (height > width) {
+            wSize = minSize;
+            hSize = maxSize;
+        }
+        hSize = Math.max(hSize - 1, 3);
+        return new Vector2i(wSize, hSize);
+    }
+
+    public void nextPuzzle() {
+        Vector2i windowMazeMetrics = getWindowMazeMetrics();
+        NaiveGenerator generator = new NaiveGenerator.Builder()
+                .setSize(4, 4)
+                .addComponent(new MissingEdgesComponent())
+                .build();
+        Solution solution = null;
+        try {
+            solution = generator.generate();
+        } catch (WrongComponentException e) {
+            throw new RuntimeException(e);
+        }
+        changeFragment(PuzzleInteractiveFragment.newInstance(solution.getPuzzle()));
     }
 
     private void changeFragment(Fragment fragment) {

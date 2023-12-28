@@ -3,12 +3,13 @@ package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioAttributes;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.view.MotionEvent;
 import android.view.View;
 
 import lenart.piotr.thewitnesspuzzle.R;
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Edge;
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
 import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
 import lenart.piotr.thewitnesspuzzle.utils.callbacks.ICallback2;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
@@ -122,6 +123,8 @@ class SquarePuzzlePathEditor implements View.OnTouchListener{
    private boolean canAddNewPoint(Vector2i point) {
       if (point.x < 0 || point.y < 0 || point.x > puzzle.width || point.y > puzzle.height) return false;
       if (path.steps.contains(point)) return false;
+      Vector2i last = path.steps.get(path.steps.size() - 1);
+      if (puzzle.isEdgeExcluded(new Edge(last.x, last.y, point.x, point.y))) return false;
       return true;
    }
 
@@ -182,15 +185,17 @@ class SquarePuzzlePathEditor implements View.OnTouchListener{
          path.steps.remove(path.steps.size() - 1);
          if (canAddNewPoint(nearest)) {
             path.steps.add(nearest);
+            updatePercent(prev, nearest, prevPix, getPixelsPoint(nearest), x, y);
             return;
          }
-         if (path.steps.size() < 3) return;
+         if (path.steps.size() < 2) return;
          Vector2i prevPrev = path.steps.get(path.steps.size() - 2);
-         if (!prevPrev.equals(nearest)) return;
+         // if (!prevPrev.equals(nearest)) return;
          updatePercent(prevPrev, prev, getPixelsPoint(prevPrev), prevPix, x, y);
          return;
       }
-      if (path.steps.contains(closestPoint)) return;
+      if (!canAddNewPoint(closestPoint)) return;
+      // if (path.steps.contains(closestPoint)) return;
       path.steps.add(closestPoint);
       updatePercent(last, closestPoint, getPixelsPoint(last), getPixelsPoint(closestPoint), x, y);
    }

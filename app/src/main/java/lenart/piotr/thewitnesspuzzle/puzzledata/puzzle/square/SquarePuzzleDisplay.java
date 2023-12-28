@@ -6,9 +6,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.view.MotionEvent;
-import android.view.View;
 
+import java.util.List;
+
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Edge;
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
 import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
 import lenart.piotr.thewitnesspuzzle.utils.callbacks.ICallback1;
@@ -109,23 +111,30 @@ public class SquarePuzzleDisplay implements IViewPuzzle {
         int marginTop = margins.y;
         int marginLeft = margins.x;
 
-        for (int x = 0; x <= puzzle.width; x++) {
-            canvas.drawRoundRect(
-                    new RectF(
-                            (x * 3 + 1) * pixelsPerPart + marginLeft,
-                            pixelsPerPart + marginTop,
-                            (x * 3 + 2) * pixelsPerPart + marginLeft,
-                            pixelsPerPart * (puzzle.height * 3 + 2) + marginTop),
-                    pixelsPerPart / 2, pixelsPerPart / 2, paintLinesBg);
-        }
-        for (int y = 0; y <= puzzle.height; y++) {
-            canvas.drawRoundRect(
-                    new RectF(
-                            pixelsPerPart + marginLeft,
-                            (y * 3 + 1) * pixelsPerPart + marginTop,
-                            pixelsPerPart * (puzzle.width * 3 + 2) + marginLeft,
-                            (y * 3 + 2) * pixelsPerPart + marginTop),
-                    pixelsPerPart / 2, pixelsPerPart / 2, paintLinesBg);
+        List<Edge> allEdges = Edge.generateAllEdges(puzzle.width, puzzle.height);
+
+        for (Edge e : allEdges) {
+            Vector2i p1 = e.v1;
+            Vector2i p2 = e.v2;
+            Vector2i from = new Vector2i(
+                    (p1.x * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                    (p1.y * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2
+            );
+            Vector2i to = new Vector2i(
+                    (p2.x * 3 + 1) * pixelsPerPart + marginLeft + pixelsPerPart / 2,
+                    (p2.y * 3 + 1) * pixelsPerPart + marginTop + pixelsPerPart / 2
+            );
+            if (puzzle.isEdgeExcluded(e)) {
+                double dist = 0.25;
+                Vector2i vBeginToEnd = to.sub(from);
+                Vector2i vEndToBegin = from.sub(to);
+                Vector2i fromEnd = from.add(vBeginToEnd.multi(dist));
+                Vector2i toEnd = to.add(vEndToBegin.multi(dist));
+                canvas.drawLine(from.x, from.y, fromEnd.x, fromEnd.y, paintLinesBg);
+                canvas.drawLine(to.x, to.y, toEnd.x, toEnd.y, paintLinesBg);
+                continue;
+            }
+            canvas.drawLine(from.x, from.y, to.x, to.y, paintLinesBg);
         }
 
         // == Draw start and end points --

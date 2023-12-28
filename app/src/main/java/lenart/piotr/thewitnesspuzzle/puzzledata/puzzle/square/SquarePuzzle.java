@@ -1,10 +1,6 @@
 package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -14,6 +10,10 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import lenart.piotr.thewitnesspuzzle.puzzledata.components.ComponentsIdManager;
 import lenart.piotr.thewitnesspuzzle.puzzledata.components.IComponent;
+import lenart.piotr.thewitnesspuzzle.puzzledata.components.square.MissingEdgesComponent;
+import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.IPath;
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Edge;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
 import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
@@ -27,17 +27,19 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
     protected List<Vector2i> startPoints;
     protected List<Vector2i> endPoints;
 
+    List<Edge> excluded;
+
     private SquarePuzzle(int width, int height) {
         this.width = width;
         this.height = height;
         this.components = new ArrayList<>();
         this.startPoints = new ArrayList<>();
         this.endPoints = new ArrayList<>();
+        excluded = new ArrayList<>();
     }
 
     public static SquarePuzzle createEmpty(int width, int height) {
-        SquarePuzzle empty = new SquarePuzzle(width, height);
-        return empty;
+        return new SquarePuzzle(width, height);
     }
 
     public List<Vector2i> getStartPoints() { return startPoints; }
@@ -45,11 +47,31 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
 
     public int getHeight() { return height; }
     public int getWidth() { return width; }
+
+    public List<IComponent> getComponents() { return components; }
+
+    public boolean isEdgeExcluded(Edge e) {
+        return excluded.contains(e);
+    }
+
     // IPuzzle implementation
 
     @Override
     public IViewPuzzle createViewPuzzle(Context context, PuzzleCanvas canvas) {
+        for (IComponent c : components) {
+            if (c instanceof MissingEdgesComponent) {
+                excluded.addAll(((MissingEdgesComponent) c).getEdges());
+            }
+        }
         return new SquarePuzzleDisplay(context, this, canvas);
+    }
+
+    @Override
+    public boolean isMatching(IPath iPath) throws WrongComponentException {
+        for (IComponent component : components) {
+            if (!component.isMatching(this, iPath)) return false;
+        }
+        return true;
     }
 
     // Parcelable

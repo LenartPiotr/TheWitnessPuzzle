@@ -2,35 +2,27 @@ package lenart.piotr.thewitnesspuzzle.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.media.AudioAttributes;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import lenart.piotr.thewitnesspuzzle.R;
+import lenart.piotr.thewitnesspuzzle.puzzledata.components.square.MissingEdgesComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.Solution;
-import lenart.piotr.thewitnesspuzzle.puzzledata.generators.square.BouncingPathGenerator;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.square.NaiveGenerator;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
-import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.Path;
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzleDisplay;
+import lenart.piotr.thewitnesspuzzle.ui.activities.MainActivity;
 import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
-import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
 public class PuzzleInteractiveFragment extends Fragment {
 
@@ -83,18 +75,14 @@ public class PuzzleInteractiveFragment extends Fragment {
         viewPuzzle = puzzle.createViewPuzzle(getContext(), puzzleCanvas);
 
         prepareSongs();
-
-        viewPuzzle.enableDrawing(path -> {
-            if (path.end) {
-                soundPool.play(soundGoodAnswer, 1, 1, 0, 0, 1);
-            } else {
-                soundPool.play(soundGiveUp, 1, 1, 0, 0, 1);
-                viewPuzzle.clearPath();
-            }
-        });
+        bindDrawing();
 
         view.findViewById(R.id.btTest).setOnClickListener(v -> {
-            NaiveGenerator generator = new NaiveGenerator.Builder().setSize(10, 10).build();
+            ((MainActivity) getContext()).nextPuzzle();
+            /*NaiveGenerator generator = new NaiveGenerator.Builder()
+                    .setSize(4, 4)
+                    .addComponent(new MissingEdgesComponent())
+                    .build();
             Solution solution = null;
             try {
                 solution = generator.generate();
@@ -104,12 +92,35 @@ public class PuzzleInteractiveFragment extends Fragment {
             puzzle = solution.getPuzzle();
             viewPuzzle = puzzle.createViewPuzzle(getContext(), puzzleCanvas);
             puzzleCanvas.setViewPuzzle(viewPuzzle);
+            ((Path) solution.getPath()).end = true;
             ((SquarePuzzleDisplay)viewPuzzle).setPath((Path) solution.getPath());
             puzzleCanvas.redraw();
+            bindDrawing();*/
         });
 
         puzzleCanvas.setViewPuzzle(viewPuzzle);
         return view;
+    }
+
+    private void bindDrawing() {
+        viewPuzzle.enableDrawing(path -> {
+            if (path.end) {
+                try {
+                    if (puzzle.isMatching(path)) {
+                        soundPool.play(soundGoodAnswer, 1, 1, 0, 0, 1);
+                    } else {
+                        soundPool.play(soundBadAnswer, 1, 1, 0, 0, 1);
+                        viewPuzzle.clearPath();
+                    }
+                } catch (WrongComponentException e) {
+                    soundPool.play(soundGiveUp, 1, 1, 0, 0, 1);
+                    e.printStackTrace();
+                }
+            } else {
+                soundPool.play(soundGiveUp, 1, 1, 0, 0, 1);
+                viewPuzzle.clearPath();
+            }
+        });
     }
 
     @Override

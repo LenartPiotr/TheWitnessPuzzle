@@ -8,7 +8,8 @@ import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentExcepti
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.IGenerator;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.IPathGenerator;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.Solution;
-import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPath;
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.IPath;
+import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzle;
 
 public class NaiveGenerator implements IGenerator {
@@ -21,15 +22,24 @@ public class NaiveGenerator implements IGenerator {
     @Override
     public Solution generate() throws WrongComponentException {
         SquarePuzzle puzzle = SquarePuzzle.createEmpty(width, height);
-        IPath path = pathGenerator.generate(puzzle);
-        return new Solution(puzzle, path);
+        IPath ipath = pathGenerator.generate(puzzle);
+        if (!(ipath instanceof Path)) throw new WrongComponentException(this, Path.class, ipath);
+        Path path = (Path) ipath;
+        puzzle.getStartPoints().add(path.steps.get(0).clone());
+        puzzle.getEndPoints().add(path.steps.get(path.steps.size() - 1).clone());
+        for (IComponent c : components) {
+            puzzle.getComponents().add(c);
+            c.reset();
+            c.addRandomElement(puzzle, path, 30);
+        }
+        return new Solution(puzzle, ipath);
     }
 
     public static class Builder {
         int width = 5;
         int height = 5;
         List<IComponent> components = new ArrayList<>();
-        IPathGenerator pathGenerator = new BouncingPathGenerator();
+        IPathGenerator pathGenerator = new DfsPathGenerator();
 
         public Builder setSize(int width, int height) {
             this.width = width;

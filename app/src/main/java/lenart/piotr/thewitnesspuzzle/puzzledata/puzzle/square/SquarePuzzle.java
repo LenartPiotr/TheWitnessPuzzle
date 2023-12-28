@@ -4,11 +4,14 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
-import lenart.piotr.thewitnesspuzzle.puzzledata.components.ComponentsIdManager;
+
 import lenart.piotr.thewitnesspuzzle.puzzledata.components.IComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.components.square.MissingEdgesComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
@@ -82,7 +85,21 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
         int componentsCount = in.readInt();
         components = new ArrayList<>();
         for (int i = 0; i < componentsCount; i++) {
-            components.add(ComponentsIdManager.createComponent(in.readInt(), in));
+            String className = Objects.requireNonNull(in.readString());
+            try {
+                Class<?> anyClass = Class.forName(className);
+                if (IComponent.class.isAssignableFrom(anyClass)) {
+                    Class<? extends IComponent> componentClass = anyClass.asSubclass(IComponent.class);
+                    Constructor<? extends IComponent> componentConstructor = componentClass.getConstructor();
+                    IComponent component = componentConstructor.newInstance();
+                    component.readFromParcel(in);
+                    components.add(component);
+                }
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("Class " + className + " should contains empty constructor.", e);
+            }
         }
     }
 
@@ -109,7 +126,7 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
         parcel.writeInt(height);
         parcel.writeInt(components.size());
         for (IComponent component : components) {
-            parcel.writeInt(ComponentsIdManager.getComponentId(component));
+            parcel.writeString(component.getClass().getName());
             component.writeToParcel(parcel, flags);
         }
     }

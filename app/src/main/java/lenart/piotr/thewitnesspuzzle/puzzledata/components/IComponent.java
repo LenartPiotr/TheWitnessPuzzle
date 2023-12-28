@@ -10,6 +10,7 @@ import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
 
 public interface IComponent {
     void writeToParcel(@NonNull Parcel parcel, int flags);
+    void readFromParcel(@NonNull Parcel in);
     boolean isMatching(IPuzzle puzzle, IPath path) throws WrongComponentException;
     void reset();
     void addRandomElement(IPuzzle puzzle, IPath path, int percent) throws WrongComponentException;

@@ -13,14 +13,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.fragment.app.FragmentContainerView;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import kotlin.collections.UArraySortingKt;
 import lenart.piotr.thewitnesspuzzle.R;
+import lenart.piotr.thewitnesspuzzle.puzzledata.components.IComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.components.square.MissingEdgesComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.Solution;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.square.NaiveGenerator;
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
-import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzle;
-import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzleDisplay;
 import lenart.piotr.thewitnesspuzzle.ui.fragments.PuzzleInteractiveFragment;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 

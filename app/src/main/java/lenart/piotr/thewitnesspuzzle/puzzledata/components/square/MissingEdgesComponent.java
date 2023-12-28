@@ -24,16 +24,6 @@ public class MissingEdgesComponent implements IComponent {
     List<Edge> edges = new ArrayList<>();
 
     public MissingEdgesComponent() { }
-    public MissingEdgesComponent(Parcel parcel) {
-        int c = parcel.readInt();
-        for (int i = 0; i < c; i++) {
-            Edge e = new Edge();
-            e.v1.x = parcel.readInt();
-            e.v1.y = parcel.readInt();
-            e.v2.x = parcel.readInt();
-            e.v2.y = parcel.readInt();
-        }
-    }
 
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
@@ -43,6 +33,18 @@ public class MissingEdgesComponent implements IComponent {
             parcel.writeInt(e.v1.y);
             parcel.writeInt(e.v2.x);
             parcel.writeInt(e.v2.y);
+        }
+    }
+
+    @Override
+    public void readFromParcel(@NonNull Parcel in) {
+        int c = in.readInt();
+        for (int i = 0; i < c; i++) {
+            Edge e = new Edge();
+            e.v1.x = in.readInt();
+            e.v1.y = in.readInt();
+            e.v2.x = in.readInt();
+            e.v2.y = in.readInt();
         }
     }
 

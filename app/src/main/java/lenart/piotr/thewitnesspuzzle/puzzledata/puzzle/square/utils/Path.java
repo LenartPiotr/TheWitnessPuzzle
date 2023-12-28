@@ -1,11 +1,11 @@
-package lenart.piotr.thewitnesspuzzle.puzzledata.paths.square;
+package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.IPath;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPath;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
 public class Path implements IPath {

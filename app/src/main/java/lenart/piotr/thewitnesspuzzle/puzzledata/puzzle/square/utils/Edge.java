@@ -1,4 +1,4 @@
-package lenart.piotr.thewitnesspuzzle.puzzledata.paths.square;
+package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils;
 
 import androidx.annotation.NonNull;
 
@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import lenart.piotr.thewitnesspuzzle.utils.tuples.Tuple;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
 public class Edge {
@@ -25,6 +26,16 @@ public class Edge {
     public Edge(int x1, int y1, int x2, int y2) {
         v1 = new Vector2i(x1, y1);
         v2 = new Vector2i(x2, y2);
+    }
+
+    public Tuple<Vector2i, Vector2i> getSeparatedFields() {
+        int x = Math.min(v1.x, v2.x);
+        int y = Math.min(v1.y, v2.y);
+        int x2 = x;
+        int y2 = y;
+        if (v1.x != v2.x) y2--;
+        else x2--;
+        return new Tuple<>(new Vector2i(x, y), new Vector2i(x2, y2));
     }
 
     @Override

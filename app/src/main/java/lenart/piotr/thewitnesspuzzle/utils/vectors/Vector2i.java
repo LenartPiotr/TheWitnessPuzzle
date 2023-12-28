@@ -16,6 +16,7 @@ public class Vector2i {
    public double dist(Vector2i v) { return Math.sqrt(Math.pow(v.x - x, 2) + Math.pow(v.y - y, 2)); }
    public int dist2(Vector2i v) { return (v.x - x) * (v.x - x) + (v.y - y) * (v.y - y); }
    public Vector2i clone() { return new Vector2i(x, y); }
+   public boolean inRange(int maxX, int maxY) { return x >= 0 && y >= 0 && x < maxX && y < maxY; }
 
    @Override
    public boolean equals(Object o) {

@@ -1,6 +1,6 @@
 package lenart.piotr.thewitnesspuzzle.puzzledata.generators;
 
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.IPath;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPath;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
 
 public class Solution {

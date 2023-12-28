@@ -1,25 +1,24 @@
-package lenart.piotr.thewitnesspuzzle.puzzledata.components.square;
+package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components;
 
 import android.os.Parcel;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
-import lenart.piotr.thewitnesspuzzle.puzzledata.components.IComponent;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.IPath;
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Edge;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPath;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Edge;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Path;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzle;
-import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IExcludeEdgesComponent;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Sector;
 
-public class MissingEdgesComponent implements IComponent {
+public class MissingEdgesComponent implements IComponent, IExcludeEdgesComponent {
 
     List<Edge> edges = new ArrayList<>();
 
@@ -49,17 +48,11 @@ public class MissingEdgesComponent implements IComponent {
     }
 
     @Override
-    public boolean isMatching(IPuzzle ipuzzle, IPath ipath) throws WrongComponentException {
-        // if (!(ipuzzle instanceof SquarePuzzle)) throw new WrongComponentException(this, SquarePuzzle.class, ipuzzle);
-        if (!(ipath instanceof Path)) throw new WrongComponentException(this, Path.class, ipath);
-        // SquarePuzzle puzzle = (SquarePuzzle) ipuzzle;
-        Path path = (Path) ipath;
-
+    public boolean isMatching(SquarePuzzle puzzle, Path path, List<Sector> sectors) {
         List<Edge> ePath = Edge.generateEdgesFromVertices(path.steps);
         for (Edge e : ePath) {
             if (edges.contains(e)) return false;
         }
-
         return true;
     }
 
@@ -69,12 +62,7 @@ public class MissingEdgesComponent implements IComponent {
     }
 
     @Override
-    public void addRandomElement(IPuzzle ipuzzle, IPath ipath, int percent) throws WrongComponentException {
-        if (!(ipuzzle instanceof SquarePuzzle)) throw new WrongComponentException(this, SquarePuzzle.class, ipuzzle);
-        if (!(ipath instanceof Path)) throw new WrongComponentException(this, Path.class, ipath);
-        SquarePuzzle puzzle = (SquarePuzzle) ipuzzle;
-        Path path = (Path) ipath;
-
+    public void addRandomElement(SquarePuzzle puzzle, Path path, List<Sector> sectors, int percent) {
         List<Edge> allEdges = Edge.generateAllEdges(puzzle.getWidth(), puzzle.getHeight());
         List<Edge> ePath = Edge.generateEdgesFromVertices(path.steps);
         allEdges.removeAll(ePath);
@@ -90,5 +78,8 @@ public class MissingEdgesComponent implements IComponent {
         return edges.contains(new Edge(x1, y1, x2, y2));
     }
 
-    public List<Edge> getEdges() { return edges; }
+    @Override
+    public List<Edge> getExcludedEdges() {
+        return edges;
+    }
 }

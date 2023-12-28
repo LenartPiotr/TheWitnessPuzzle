@@ -12,25 +12,28 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 
-import lenart.piotr.thewitnesspuzzle.puzzledata.components.IComponent;
-import lenart.piotr.thewitnesspuzzle.puzzledata.components.square.MissingEdgesComponent;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IComponent;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IExcludeEdgesComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.IPath;
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Edge;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPath;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Edge;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Path;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Sector;
 import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
 public class SquarePuzzle implements IPuzzle, Parcelable {
 
-    protected int width, height;
-    protected List<IComponent> components;
+    int width, height;
+    List<IComponent> components;
 
-    protected List<Vector2i> startPoints;
-    protected List<Vector2i> endPoints;
+    List<Vector2i> startPoints;
+    List<Vector2i> endPoints;
 
     List<Edge> excluded;
+    boolean[][] reservedFields;
 
     private SquarePuzzle(int width, int height) {
         this.width = width;
@@ -39,6 +42,7 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
         this.startPoints = new ArrayList<>();
         this.endPoints = new ArrayList<>();
         excluded = new ArrayList<>();
+        reservedFields = new boolean[width][height];
     }
 
     public static SquarePuzzle createEmpty(int width, int height) {
@@ -52,27 +56,39 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
     public int getWidth() { return width; }
 
     public List<IComponent> getComponents() { return components; }
-
-    public boolean isEdgeExcluded(Edge e) {
-        return excluded.contains(e);
+    public void registerComponents() {
+        excluded.clear();
+        for (IComponent c : components) {
+            if (c instanceof IExcludeEdgesComponent) {
+                excluded.addAll(((IExcludeEdgesComponent) c).getExcludedEdges());
+            }
+        }
     }
+
+    public boolean isEdgeExcluded(Edge e) { return excluded.contains(e); }
+
+    public boolean reserveField(Vector2i v) {
+        if (reservedFields[v.x][v.y]) return false;
+        reservedFields[v.x][v.y] = true;
+        return true;
+    }
+    public void freeField(Vector2i v) { reservedFields[v.x][v.y] = false; }
+    public boolean isFieldFree(Vector2i v) { return !reservedFields[v.x][v.y]; }
 
     // IPuzzle implementation
 
     @Override
     public IViewPuzzle createViewPuzzle(Context context, PuzzleCanvas canvas) {
-        for (IComponent c : components) {
-            if (c instanceof MissingEdgesComponent) {
-                excluded.addAll(((MissingEdgesComponent) c).getEdges());
-            }
-        }
         return new SquarePuzzleDisplay(context, this, canvas);
     }
 
     @Override
     public boolean isMatching(IPath iPath) throws WrongComponentException {
+        if (!(iPath instanceof Path)) throw new WrongComponentException(this, Path.class, iPath);
+        Path path = (Path) iPath;
+        List<Sector> sectors = Sector.getSectors(width, height, path);
         for (IComponent component : components) {
-            if (!component.isMatching(this, iPath)) return false;
+            if (!component.isMatching(this, path, sectors)) return false;
         }
         return true;
     }

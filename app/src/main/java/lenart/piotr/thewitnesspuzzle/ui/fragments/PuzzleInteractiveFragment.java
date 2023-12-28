@@ -8,19 +8,19 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
 import lenart.piotr.thewitnesspuzzle.R;
-import lenart.piotr.thewitnesspuzzle.puzzledata.components.square.MissingEdgesComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
-import lenart.piotr.thewitnesspuzzle.puzzledata.generators.Solution;
-import lenart.piotr.thewitnesspuzzle.puzzledata.generators.square.NaiveGenerator;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
-import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzleDisplay;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzle;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Sector;
 import lenart.piotr.thewitnesspuzzle.ui.activities.MainActivity;
 import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
 

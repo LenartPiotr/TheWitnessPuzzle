@@ -2,7 +2,7 @@ package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle;
 
 import android.graphics.Canvas;
 
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Path;
 import lenart.piotr.thewitnesspuzzle.utils.callbacks.ICallback1;
 
 public interface IViewPuzzle {

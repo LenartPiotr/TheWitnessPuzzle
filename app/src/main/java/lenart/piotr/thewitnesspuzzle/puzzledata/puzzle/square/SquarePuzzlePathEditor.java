@@ -8,8 +8,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import lenart.piotr.thewitnesspuzzle.R;
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Edge;
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Edge;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Path;
 import lenart.piotr.thewitnesspuzzle.ui.views.PuzzleCanvas;
 import lenart.piotr.thewitnesspuzzle.utils.callbacks.ICallback2;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;

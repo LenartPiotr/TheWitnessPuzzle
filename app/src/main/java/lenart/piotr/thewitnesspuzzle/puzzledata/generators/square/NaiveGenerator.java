@@ -1,16 +1,19 @@
 package lenart.piotr.thewitnesspuzzle.puzzledata.generators.square;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import lenart.piotr.thewitnesspuzzle.puzzledata.components.IComponent;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.IGenerator;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.IPathGenerator;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.Solution;
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.IPath;
-import lenart.piotr.thewitnesspuzzle.puzzledata.paths.square.Path;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPath;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Path;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzle;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Sector;
 
 public class NaiveGenerator implements IGenerator {
     int width;
@@ -27,11 +30,13 @@ public class NaiveGenerator implements IGenerator {
         Path path = (Path) ipath;
         puzzle.getStartPoints().add(path.steps.get(0).clone());
         puzzle.getEndPoints().add(path.steps.get(path.steps.size() - 1).clone());
+        List<Sector> sectors = Sector.getSectors(width, height, path);
         for (IComponent c : components) {
             puzzle.getComponents().add(c);
             c.reset();
-            c.addRandomElement(puzzle, path, 30);
+            c.addRandomElement(puzzle, path, sectors, 30);
         }
+        puzzle.registerComponents();
         return new Solution(puzzle, ipath);
     }
 

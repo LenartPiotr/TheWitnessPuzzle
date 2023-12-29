@@ -3,6 +3,7 @@ package lenart.piotr.thewitnesspuzzle.puzzledata.generators.square;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IComponent;
@@ -19,6 +20,7 @@ public class NaiveGenerator implements IGenerator {
     int width;
     int height;
     List<IComponent> components;
+    int[] percents;
     IPathGenerator pathGenerator;
     NaiveGenerator() { }
 
@@ -31,10 +33,12 @@ public class NaiveGenerator implements IGenerator {
         puzzle.getStartPoints().add(path.steps.get(0).clone());
         puzzle.getEndPoints().add(path.steps.get(path.steps.size() - 1).clone());
         List<Sector> sectors = Sector.getSectors(width, height, path);
-        for (IComponent c : components) {
+        Collections.shuffle(components);
+        for (int i = 0; i < percents.length; i++) {
+            IComponent c = components.get(i);
             puzzle.getComponents().add(c);
             c.reset();
-            c.addRandomElement(puzzle, path, sectors, 30);
+            c.addRandomElement(puzzle, path, sectors, percents[i]);
         }
         puzzle.registerComponents();
         return new Solution(puzzle, ipath);
@@ -45,6 +49,7 @@ public class NaiveGenerator implements IGenerator {
         int height = 5;
         List<IComponent> components = new ArrayList<>();
         IPathGenerator pathGenerator = new DfsPathGenerator();
+        int[] percentage = new int[0];
 
         public Builder setSize(int width, int height) {
             this.width = width;
@@ -61,12 +66,17 @@ public class NaiveGenerator implements IGenerator {
             this.pathGenerator = generator;
             return this;
         }
+        public Builder setComponentsRandomPercentage(int[] percentage) {
+            this.percentage = percentage;
+            return this;
+        }
         public NaiveGenerator build() {
             NaiveGenerator generator = new NaiveGenerator();
             generator.width = width;
             generator.height = height;
             generator.components = components;
             generator.pathGenerator = pathGenerator;
+            generator.percents = percentage;
             return generator;
         }
     }

@@ -1,5 +1,6 @@
 package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces;
 
+import android.graphics.Canvas;
 import android.os.Parcel;
 
 import androidx.annotation.NonNull;

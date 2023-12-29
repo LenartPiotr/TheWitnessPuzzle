@@ -9,6 +9,8 @@ import android.graphics.RectF;
 
 import java.util.List;
 
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IComponent;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IDrawableComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Edge;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Path;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IViewPuzzle;
@@ -162,6 +164,14 @@ public class SquarePuzzleDisplay implements IViewPuzzle {
 
         if (this.path != null && this.path.steps.size() != 0) {
             drawPath(canvas, pixelsPerPart, marginTop, marginLeft, pixelsPerDot, paintMainLine);
+        }
+
+        // Components
+
+        for (IComponent component : puzzle.getComponents()) {
+            if (component instanceof IDrawableComponent) {
+                ((IDrawableComponent) component).draw(canvas, pixelsPerPart, marginTop, marginLeft);
+            }
         }
     }
 

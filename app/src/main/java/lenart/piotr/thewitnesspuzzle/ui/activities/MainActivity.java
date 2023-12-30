@@ -18,6 +18,7 @@ import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.Missing
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.Solution;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.square.NaiveGenerator;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.SquaresComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.SunsComponent;
 import lenart.piotr.thewitnesspuzzle.ui.fragments.PuzzleInteractiveFragment;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
@@ -79,10 +80,11 @@ public class MainActivity extends AppCompatActivity {
     public void nextPuzzle() {
         Vector2i windowMazeMetrics = getWindowMazeMetrics();
         NaiveGenerator generator = new NaiveGenerator.Builder()
-                .setSize(4, 4)
-                .addComponent(new MissingEdgesComponent())
-                .addComponent(new SunsComponent())
-                .setComponentsRandomPercentage(new int[]{ 30, 30 })
+                .setSize(5, 5)
+                .addComponent(new MissingEdgesComponent(), 20)
+                .addComponent(new SunsComponent(), 30)
+                .addComponent(new SquaresComponent(), 20)
+                // .setComponentsRandomPercentage(new int[]{ 100, 30 })
                 .build();
         Solution solution = null;
         try {

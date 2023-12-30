@@ -1,7 +1,6 @@
 package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Parcel;
@@ -24,17 +23,17 @@ import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Path;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Sector;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
-public class SunsComponent implements IComponent, IDrawableComponent {
+public class SquaresComponent implements IComponent, IDrawableComponent {
 
-    List<Sun> suns = new ArrayList<>();
+    List<Square> squares = new ArrayList<>();
     Random rand = new Random();
 
-    public SunsComponent() { }
+    public SquaresComponent() { }
 
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
-        parcel.writeInt(suns.size());
-        for (Sun s : suns) {
+        parcel.writeInt(squares.size());
+        for (Square s : squares) {
             parcel.writeInt(s.pos.x);
             parcel.writeInt(s.pos.y);
             parcel.writeInt(s.color);
@@ -43,25 +42,26 @@ public class SunsComponent implements IComponent, IDrawableComponent {
 
     @Override
     public void readFromParcel(@NonNull Parcel in) {
-        suns.clear();
+        squares.clear();
         int s = in.readInt();
         for (int i = 0; i < s; i++) {
-            suns.add(new Sun(new Vector2i(in.readInt(), in.readInt()), in.readInt()));
+            squares.add(new Square(new Vector2i(in.readInt(), in.readInt()), in.readInt()));
         }
     }
 
     @Override
     public boolean isMatching(SquarePuzzle puzzle, Path path, List<Sector> sectors) {
         for (Sector s : sectors) {
-            Map<Integer, Integer> sunsCount = new HashMap<>();
+            int sectorColor = -1;
             for (Vector2i position : s.getFields()) {
-                for (Sun sun : suns) {
-                    if (!sun.pos.equals(position)) continue;
-                    sunsCount.put(sun.color, sunsCount.getOrDefault(sun.color, 0) + 1);
+                for (Square square : squares) {
+                    if (!square.pos.equals(position)) continue;
+                    if (sectorColor == -1) {
+                        sectorColor = square.color;
+                        continue;
+                    }
+                    if (sectorColor != square.color) return false;
                 }
-            }
-            for (int val : sunsCount.values()) {
-                if (val != 0 && val != 2) return false;
             }
         }
         return true;
@@ -69,48 +69,40 @@ public class SunsComponent implements IComponent, IDrawableComponent {
 
     @Override
     public void reset() {
-        suns.clear();
+        squares.clear();
     }
 
     @Override
     public void addRandomElement(SquarePuzzle puzzle, Path path, List<Sector> sectors, int percent) {
+        int maxColors = rand.nextInt(2) + 2;
         class SectorData {
             Sector sector;
+            int color;
             List<Vector2i> freePoints;
-            int nextSunColor = 0;
             SectorData(Sector sector) {
                 this.sector = sector;
                 freePoints = sector.getFreeFields(puzzle).stream().map(Vector2i::clone).collect(Collectors.toList());
                 Collections.shuffle(freePoints);
+                color = rand.nextInt(maxColors);
             }
         }
-        List<SectorData> s = sectors.stream().map(SectorData::new).filter(sd -> sd.freePoints.size() > 1).collect(Collectors.toList());
+
+        List<SectorData> s = sectors.stream().map(SectorData::new).collect(Collectors.toList());
         int countAll = 0;
-        for (SectorData sd : s) countAll += (sd.freePoints.size() / 2) * 2;
-        double sumProgress = 0;
-        double progressPerStep = 100.0 / countAll * 2.0;
-        while (sumProgress < percent && s.size() > 0) {
+        for (SectorData sd : s) countAll += sd.freePoints.size();
+        double progress = 0;
+        double progressPerStep = 100.0 / countAll;
+        while (progress < percent && s.size() > 0) {
             int randSector = rand.nextInt(s.size());
             SectorData sectorData = s.get(randSector);
             Vector2i p1 = sectorData.freePoints.get(0);
-            Vector2i p2 = sectorData.freePoints.get(1);
             sectorData.freePoints.remove(p1);
-            sectorData.freePoints.remove(p2);
-            if (sectorData.freePoints.size() < 2) s.remove(sectorData);
-            int color = sectorData.nextSunColor;
-            suns.add(new Sun(p1, color));
-            suns.add(new Sun(p2, color));
+            if (sectorData.freePoints.size() == 0) s.remove(sectorData);
+            int color = sectorData.color;
+            squares.add(new Square(p1, color));
             if (!puzzle.reserveField(p1)) return;
-            if (!puzzle.reserveField(p2)) return;
-            sectorData.nextSunColor++;
-            sumProgress += progressPerStep;
+            progress += progressPerStep;
         }
-    }
-
-    protected static class Sun {
-        Vector2i pos;
-        int color;
-        Sun(Vector2i p, int col) { pos = p; color = col; }
     }
 
     @Override
@@ -118,27 +110,26 @@ public class SunsComponent implements IComponent, IDrawableComponent {
         Paint paint = new Paint();
         paint.setStrokeWidth(pixelsPerPart);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        for (Sun sun : suns) {
-            display.setColor(paint, sun.color);
+        for (Square square : squares) {
+            display.setColor(paint, square.color);
             Vector2i center = new Vector2i(
-                    (sun.pos.x * 3 + 3) * pixelsPerPart + marginLeft,
-                    (sun.pos.y * 3 + 3) * pixelsPerPart + marginTop
+                    (square.pos.x * 3 + 3) * pixelsPerPart + marginLeft,
+                    (square.pos.y * 3 + 3) * pixelsPerPart + marginTop
             );
-            drawSun(canvas, center, pixelsPerPart, paint);
+            drawSquare(canvas, center, pixelsPerPart, paint);
         }
     }
 
-    private void drawSun(Canvas canvas, Vector2i point, int pixelsPerPart, Paint paint) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(45, point.x, point.y);
-
+    private void drawSquare(Canvas canvas, Vector2i point, int pixelsPerPart, Paint paint) {
         double scale = 0.9;
         int del = (int)(pixelsPerPart * scale / 2);
+        int radius = pixelsPerPart / 4;
+        canvas.drawRoundRect(point.x - del, point.y - del, point.x + del, point.y + del, radius, radius, paint);
+    }
 
-        canvas.save();
-        canvas.setMatrix(matrix);
-        canvas.drawRect(point.x - del, point.y - del, point.x + del, point.y + del, paint);
-        canvas.restore();
-        canvas.drawRect(point.x - del, point.y - del, point.x + del, point.y + del, paint);
+    protected static class Square {
+        Vector2i pos;
+        int color;
+        Square(Vector2i p, int col) { pos = p; color = col; }
     }
 }

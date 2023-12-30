@@ -170,7 +170,7 @@ public class SquarePuzzleDisplay implements IViewPuzzle {
 
         for (IComponent component : puzzle.getComponents()) {
             if (component instanceof IDrawableComponent) {
-                ((IDrawableComponent) component).draw(canvas, pixelsPerPart, marginTop, marginLeft);
+                ((IDrawableComponent) component).draw(this, canvas, pixelsPerPart, marginTop, marginLeft);
             }
         }
     }
@@ -279,6 +279,19 @@ public class SquarePuzzleDisplay implements IViewPuzzle {
             );
             Vector2i endPoint = getEndingPoint(last, pixelsPerPart, marginTop, marginLeft);
             canvas.drawLine(from.x, from.y, endPoint.x, endPoint.y, paint);
+        }
+    }
+
+    public void setColor(Paint p, int color) {
+        switch (color){
+            case 0: p.setColor(Color.rgb(255, 140, 0)); break;
+            case 1: p.setColor(Color.rgb(200, 0, 255)); break;
+            case 2: p.setColor(Color.rgb(0, 255, 0)); break;
+            case 3: p.setColor(Color.rgb(255, 255, 0)); break;
+            case 4: p.setColor(Color.rgb(0, 0, 255)); break;
+            case 5: p.setColor(Color.rgb(255, 0, 0)); break;
+            case 6: p.setColor(Color.rgb(0, 255, 255)); break;
+            default: p.setColor(Color.rgb(0, 0, 0));
         }
     }
 }

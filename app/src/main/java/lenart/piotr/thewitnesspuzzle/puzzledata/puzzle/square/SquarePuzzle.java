@@ -1,6 +1,7 @@
 package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -74,6 +75,19 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
     }
     public void freeField(Vector2i v) { reservedFields[v.x][v.y] = false; }
     public boolean isFieldFree(Vector2i v) { return !reservedFields[v.x][v.y]; }
+
+    public int getColor(int index) {
+        switch (index){
+            case 0: return Color.rgb(255, 140, 0);
+            case 1: return Color.rgb(200, 0, 255);
+            case 2: return Color.rgb(0, 255, 0);
+            case 3: return Color.rgb(255, 255, 0);
+            case 4: return Color.rgb(0, 0, 255);
+            case 5: return Color.rgb(255, 0, 0);
+            case 6: return Color.rgb(0, 255, 255);
+            default: return Color.rgb(0, 0, 0);
+        }
+    }
 
     // IPuzzle implementation
 

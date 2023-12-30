@@ -5,5 +5,5 @@ import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPath;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPuzzle;
 
 public interface IPathGenerator {
-    public IPath generate(IPuzzle puzzle) throws WrongComponentException;
+    IPath generate(IPuzzle puzzle) throws WrongComponentException;
 }

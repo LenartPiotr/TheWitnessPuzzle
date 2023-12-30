@@ -4,7 +4,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
@@ -19,7 +21,7 @@ import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Sector;
 public class NaiveGenerator implements IGenerator {
     int width;
     int height;
-    List<IComponent> components;
+    List<ComponentData> components;
     int[] percents;
     IPathGenerator pathGenerator;
     NaiveGenerator() { }
@@ -34,11 +36,19 @@ public class NaiveGenerator implements IGenerator {
         puzzle.getEndPoints().add(path.steps.get(path.steps.size() - 1).clone());
         List<Sector> sectors = Sector.getSectors(width, height, path);
         Collections.shuffle(components);
+        List<IComponent> randomComponents = components.stream().filter(c -> c.percent == 0).map(c -> c.component).collect(Collectors.toList());
         for (int i = 0; i < percents.length; i++) {
-            IComponent c = components.get(i);
+            IComponent c = randomComponents.get(i);
             puzzle.getComponents().add(c);
             c.reset();
             c.addRandomElement(puzzle, path, sectors, percents[i]);
+        }
+        for (ComponentData componentData : components) {
+            if (componentData.percent == 0) continue;
+            IComponent c = componentData.component;
+            puzzle.getComponents().add(c);
+            c.reset();
+            c.addRandomElement(puzzle, path, sectors, componentData.percent);
         }
         puzzle.registerComponents();
         return new Solution(puzzle, ipath);
@@ -47,7 +57,7 @@ public class NaiveGenerator implements IGenerator {
     public static class Builder {
         int width = 5;
         int height = 5;
-        List<IComponent> components = new ArrayList<>();
+        List<ComponentData> components = new ArrayList<>();
         IPathGenerator pathGenerator = new DfsPathGenerator();
         int[] percentage = new int[0];
 
@@ -56,10 +66,16 @@ public class NaiveGenerator implements IGenerator {
             this.height = height;
             return this;
         }
-        public Builder addComponent(IComponent component) {
+        public Builder addRandomComponent(IComponent component) {
             if (component == null) return this;
-            if (components.stream().anyMatch(component1 -> component1.getClass().equals(component.getClass()))) return this;
-            components.add(component);
+            if (components.stream().anyMatch(component1 -> component1.component.getClass().equals(component.getClass()))) return this;
+            components.add(new ComponentData(component, 0));
+            return this;
+        }
+        public Builder addComponent(IComponent component, int fillPercent) {
+            if (component == null) return this;
+            if (components.stream().anyMatch(component1 -> component1.component.getClass().equals(component.getClass()))) return this;
+            components.add(new ComponentData(component, fillPercent));
             return this;
         }
         public Builder setPathGenerator(IPathGenerator generator) {
@@ -78,6 +94,15 @@ public class NaiveGenerator implements IGenerator {
             generator.pathGenerator = pathGenerator;
             generator.percents = percentage;
             return generator;
+        }
+    }
+
+    static class ComponentData {
+        IComponent component;
+        int percent;
+        ComponentData(IComponent component, int percent) {
+            this.component = component;
+            this.percent = percent;
         }
     }
 }

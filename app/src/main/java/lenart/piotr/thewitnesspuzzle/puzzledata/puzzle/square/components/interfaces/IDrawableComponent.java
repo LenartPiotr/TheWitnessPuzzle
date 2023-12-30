@@ -2,6 +2,8 @@ package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interf
 
 import android.graphics.Canvas;
 
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzleDisplay;
+
 public interface IDrawableComponent {
-    void draw(Canvas canvas, int pixelsPerPart, int marginTop, int marginLeft);
+    void draw(SquarePuzzleDisplay display, Canvas canvas, int pixelsPerPart, int marginTop, int marginLeft);
 }

@@ -1,32 +1,33 @@
 package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components;
 
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Parcel;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzle;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzleDisplay;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzleSectorsBuilder;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzleSectorsBuilder.SectorData;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IDrawableComponent;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.ISectorsComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Path;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Sector;
 import lenart.piotr.thewitnesspuzzle.utils.vectors.Vector2i;
 
-public class SquaresComponent implements IComponent, IDrawableComponent {
+public class SquaresComponent implements IComponent, IDrawableComponent, ISectorsComponent {
 
     List<Square> squares = new ArrayList<>();
     Random rand = new Random();
+    SquarePuzzleSectorsBuilder sectorsBuilder;
 
     public SquaresComponent() { }
 
@@ -73,36 +74,42 @@ public class SquaresComponent implements IComponent, IDrawableComponent {
     }
 
     @Override
-    public void addRandomElement(SquarePuzzle puzzle, Path path, List<Sector> sectors, int percent) {
+    public void addRandomElement(SquarePuzzle puzzle, Path path, int percent) {
+        List<SectorData> sectors = sectorsBuilder.getSectors();
         int maxColors = rand.nextInt(2) + 2;
-        class SectorData {
-            Sector sector;
-            int color;
-            List<Vector2i> freePoints;
-            SectorData(Sector sector) {
+        class SectorDataDecorator {
+            final SectorData sector;
+            final int color;
+            SectorDataDecorator(SectorData sector) {
                 this.sector = sector;
-                freePoints = sector.getFreeFields(puzzle).stream().map(Vector2i::clone).collect(Collectors.toList());
-                Collections.shuffle(freePoints);
-                color = rand.nextInt(maxColors);
+                int col = rand.nextInt(maxColors);
+                if (!sector.isColorAvailable(col)) {
+                    if (rand.nextBoolean()) col = sector.getFirstAvailableColor();
+                    else col = sector.getFirstFreeColor();
+                }
+                color = col;
             }
         }
 
-        List<SectorData> s = sectors.stream().map(SectorData::new).collect(Collectors.toList());
+        List<SectorDataDecorator> s = sectors.stream().filter(x -> x.getFreeCount() > 0).map(SectorDataDecorator::new).collect(Collectors.toList());
         int countAll = 0;
-        for (SectorData sd : s) countAll += sd.freePoints.size();
+        for (SectorDataDecorator sd : s) countAll += sd.sector.getFreeCount();
         double progress = 0;
         double progressPerStep = 100.0 / countAll;
         while (progress < percent && s.size() > 0) {
             int randSector = rand.nextInt(s.size());
-            SectorData sectorData = s.get(randSector);
-            Vector2i p1 = sectorData.freePoints.get(0);
-            sectorData.freePoints.remove(p1);
-            if (sectorData.freePoints.size() == 0) s.remove(sectorData);
-            int color = sectorData.color;
-            squares.add(new Square(p1, color));
-            if (!puzzle.reserveField(p1)) return;
+            SectorDataDecorator sectorData = s.get(randSector);
+            Vector2i p1 = sectorData.sector.getRandomFreeField();
+            sectorData.sector.putElement(p1, sectorData.color);
+            if (sectorData.sector.getFreeCount() == 0) s.remove(sectorData);
+            squares.add(new Square(p1, sectorData.color));
             progress += progressPerStep;
         }
+    }
+
+    @Override
+    public void setRandom(Random random) {
+        this.rand = random;
     }
 
     @Override
@@ -125,6 +132,11 @@ public class SquaresComponent implements IComponent, IDrawableComponent {
         int del = (int)(pixelsPerPart * scale / 2);
         int radius = pixelsPerPart / 4;
         canvas.drawRoundRect(point.x - del, point.y - del, point.x + del, point.y + del, radius, radius, paint);
+    }
+
+    @Override
+    public void setSectorsBuilder(SquarePuzzleSectorsBuilder sectorsBuilder) {
+        this.sectorsBuilder = sectorsBuilder;
     }
 
     protected static class Square {

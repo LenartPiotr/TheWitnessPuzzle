@@ -1,7 +1,6 @@
 package lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -34,7 +33,7 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
     List<Vector2i> endPoints;
 
     List<Edge> excluded;
-    boolean[][] reservedFields;
+    FieldInfo[][] fields;
 
     private SquarePuzzle(int width, int height) {
         this.width = width;
@@ -43,7 +42,11 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
         this.startPoints = new ArrayList<>();
         this.endPoints = new ArrayList<>();
         excluded = new ArrayList<>();
-        reservedFields = new boolean[width][height];
+        fields = new FieldInfo[width][height];
+        for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; y++) {
+                fields[x][y] = new FieldInfo();
+            }
     }
 
     public static SquarePuzzle createEmpty(int width, int height) {
@@ -68,25 +71,22 @@ public class SquarePuzzle implements IPuzzle, Parcelable {
 
     public boolean isEdgeExcluded(Edge e) { return excluded.contains(e); }
 
-    public boolean reserveField(Vector2i v) {
-        if (reservedFields[v.x][v.y]) return false;
-        reservedFields[v.x][v.y] = true;
+    public boolean reserveField(Vector2i v, int color) {
+        if (fields[v.x][v.y].withElement) return false;
+        fields[v.x][v.y].withElement = true;
+        fields[v.x][v.y].color = color;
         return true;
     }
-    public void freeField(Vector2i v) { reservedFields[v.x][v.y] = false; }
-    public boolean isFieldFree(Vector2i v) { return !reservedFields[v.x][v.y]; }
+    public void freeField(Vector2i v) {
+        fields[v.x][v.y].withElement = false;
+        fields[v.x][v.y].color = -1;
+    }
+    public boolean isFieldFree(Vector2i v) { return !fields[v.x][v.y].withElement; }
+    public int getFieldColor(Vector2i v) { return fields[v.x][v.y].color; }
 
-    public int getColor(int index) {
-        switch (index){
-            case 0: return Color.rgb(255, 140, 0);
-            case 1: return Color.rgb(200, 0, 255);
-            case 2: return Color.rgb(0, 255, 0);
-            case 3: return Color.rgb(255, 255, 0);
-            case 4: return Color.rgb(0, 0, 255);
-            case 5: return Color.rgb(255, 0, 0);
-            case 6: return Color.rgb(0, 255, 255);
-            default: return Color.rgb(0, 0, 0);
-        }
+    static class FieldInfo {
+        boolean withElement = false;
+        int color = -1;
     }
 
     // IPuzzle implementation

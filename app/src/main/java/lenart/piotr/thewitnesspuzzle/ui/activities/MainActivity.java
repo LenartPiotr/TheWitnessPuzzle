@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         Vector2i windowMazeMetrics = getWindowMazeMetrics();
         NaiveGenerator generator = new NaiveGenerator.Builder()
                 .setSize(5, 5)
-                .addComponent(new MissingEdgesComponent(), 20)
+                .addComponent(new MissingEdgesComponent(), 10)
                 .addComponent(new SunsComponent(), 30)
                 .addComponent(new SquaresComponent(), 20)
                 // .setComponentsRandomPercentage(new int[]{ 100, 30 })

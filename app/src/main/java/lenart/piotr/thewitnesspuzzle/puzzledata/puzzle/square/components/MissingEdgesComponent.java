@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
@@ -62,7 +63,7 @@ public class MissingEdgesComponent implements IComponent, IExcludeEdgesComponent
     }
 
     @Override
-    public void addRandomElement(SquarePuzzle puzzle, Path path, List<Sector> sectors, int percent) {
+    public void addRandomElement(SquarePuzzle puzzle, Path path, int percent) {
         List<Edge> allEdges = Edge.generateAllEdges(puzzle.getWidth(), puzzle.getHeight());
         List<Edge> ePath = Edge.generateEdgesFromVertices(path.steps);
         allEdges.removeAll(ePath);
@@ -73,6 +74,9 @@ public class MissingEdgesComponent implements IComponent, IExcludeEdgesComponent
             edges.add(allEdges.get(i));
         }
     }
+
+    @Override
+    public void setRandom(Random random) { }
 
     public boolean contains(int x1, int y1, int x2, int y2) {
         return edges.contains(new Edge(x1, y1, x2, y2));

@@ -6,14 +6,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzleSectorsBuilder;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.IComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.IGenerator;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.IPathGenerator;
 import lenart.piotr.thewitnesspuzzle.puzzledata.generators.Solution;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPath;
+import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.components.interfaces.ISectorsComponent;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Path;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.SquarePuzzle;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.square.utils.Sector;
@@ -24,34 +27,45 @@ public class NaiveGenerator implements IGenerator {
     List<ComponentData> components;
     int[] percents;
     IPathGenerator pathGenerator;
+
+    SquarePuzzle puzzle;
+    SquarePuzzleSectorsBuilder sectorsBuilder;
+    Random random;
+
     NaiveGenerator() { }
 
     @Override
     public Solution generate() throws WrongComponentException {
-        SquarePuzzle puzzle = SquarePuzzle.createEmpty(width, height);
+        random = new Random();
+        puzzle = SquarePuzzle.createEmpty(width, height);
         IPath ipath = pathGenerator.generate(puzzle);
         if (!(ipath instanceof Path)) throw new WrongComponentException(this, Path.class, ipath);
         Path path = (Path) ipath;
         puzzle.getStartPoints().add(path.steps.get(0).clone());
         puzzle.getEndPoints().add(path.steps.get(path.steps.size() - 1).clone());
-        List<Sector> sectors = Sector.getSectors(width, height, path);
+        sectorsBuilder = new SquarePuzzleSectorsBuilder(puzzle, path);
+        sectorsBuilder.setRandom(random);
         Collections.shuffle(components);
         List<IComponent> randomComponents = components.stream().filter(c -> c.percent == 0).map(c -> c.component).collect(Collectors.toList());
         for (int i = 0; i < percents.length; i++) {
             IComponent c = randomComponents.get(i);
-            puzzle.getComponents().add(c);
-            c.reset();
-            c.addRandomElement(puzzle, path, sectors, percents[i]);
+            setUpComponent(c, path, percents[i]);
         }
         for (ComponentData componentData : components) {
             if (componentData.percent == 0) continue;
             IComponent c = componentData.component;
-            puzzle.getComponents().add(c);
-            c.reset();
-            c.addRandomElement(puzzle, path, sectors, componentData.percent);
+            setUpComponent(c, path, componentData.percent);
         }
         puzzle.registerComponents();
         return new Solution(puzzle, ipath);
+    }
+
+    void setUpComponent(IComponent component, Path path, int percent) {
+        puzzle.getComponents().add(component);
+        component.reset();
+        if (component instanceof ISectorsComponent) ((ISectorsComponent) component).setSectorsBuilder(sectorsBuilder);
+        component.setRandom(random);
+        component.addRandomElement(puzzle, path, percent);
     }
 
     public static class Builder {

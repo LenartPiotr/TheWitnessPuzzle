@@ -6,6 +6,7 @@ import android.os.Parcel;
 import androidx.annotation.NonNull;
 
 import java.util.List;
+import java.util.Random;
 
 import lenart.piotr.thewitnesspuzzle.puzzledata.exceptions.WrongComponentException;
 import lenart.piotr.thewitnesspuzzle.puzzledata.puzzle.IPath;
@@ -19,5 +20,6 @@ public interface IComponent {
     void readFromParcel(@NonNull Parcel in);
     boolean isMatching(SquarePuzzle puzzle, Path path, List<Sector> sectors);
     void reset();
-    void addRandomElement(SquarePuzzle puzzle, Path path, List<Sector> sectors, int percent);
+    void addRandomElement(SquarePuzzle puzzle, Path path, int percent);
+    void setRandom(Random random);
 }
